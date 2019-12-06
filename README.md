@@ -1,2 +1,2 @@
 # Election-Violence
-My GOVT_435
+My GOVT-435 final project regarding election violence in Sub-Saharan Africa
