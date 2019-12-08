@@ -156,19 +156,32 @@ Zambia_Viol7 <- Zambia_Viol6 %>% rename(sub = admin1)
 regression_zam <- ENoP_Zam_AVGed %>%  full_join(Zambia_Viol4, by = c("cst_n", "sub"))
 regression_zam <- regression_zam %>%  full_join(Zambia_Viol7, by = c("cst_n", "sub"))
 regression_zam[is.na(regression_zam)] <- 0
-fast_alles_über_Sambia <- regression_zam %>% full_join(Heterogenity, by = "sub")
-fast_alles_über_Sambia <- fast_alles_über_Sambia[-c(159),] 
-DATEN_über_Sambia_1 <- fast_alles_über_Sambia %>% full_join(demographic_data, by = "sub")
-DATEN_über_Sambia_1 <- select(DATEN_über_Sambia_1, "sub", "cst_n", "cst", "ENoP.x", "ENoP.y", "viol.x", "n.x", "viol.y", "n.y", "ethnic_heterogenity", "popdensity", "unemployed")
-DATEN_über_Sambia <- DATEN_über_Sambia_1 %>% rename(ENoP_2016 = ENoP.x, ENoP_2011 = ENoP.y, viol_2016 = viol.x, viol_2011 = viol.y, n_2016 = n.x, n_2011 = n.y)
-print(DATEN_über_Sambia, n=200)
-kable(DATEN_über_Sambia)
-write.table(DATEN_über_Sambia, file = "DATEN_über_Sambia", sep = ",", quote = FALSE, row.names = F)
+fast_alles_Ã¼ber_Sambia <- regression_zam %>% full_join(Heterogenity, by = "sub")
+fast_alles_Ã¼ber_Sambia <- fast_alles_Ã¼ber_Sambia[-c(159),] 
+DATEN_Ã¼ber_Sambia_1 <- fast_alles_Ã¼ber_Sambia %>% full_join(demographic_data, by = "sub")
+DATEN_Ã¼ber_Sambia_1 <- select(DATEN_Ã¼ber_Sambia_1, "sub", "cst_n", "cst", "ENoP.x", "ENoP.y", "viol.x", "n.x", "viol.y", "n.y", "ethnic_heterogenity", "popdensity", "unemployed")
+DATEN_Ã¼ber_Sambia <- DATEN_Ã¼ber_Sambia_1 %>% rename(ENoP_2016 = ENoP.x, ENoP_2011 = ENoP.y, viol_2016 = viol.x, viol_2011 = viol.y, n_2016 = n.x, n_2011 = n.y)
+DATEN_Ã¼ber_Sambia_ohne_etwas <- DATEN_Ã¼ber_Sambia[-c(47, 64, 81, 87, 117, 131, 154),]
+# removing consituencies included in average, for all data print DATEN_Ã¼ber_Sambia
+print(DATEN_Ã¼ber_Sambia, n=200)
+print(DATEN_Ã¼ber_Sambia_ohne_etwas, n = 200)
 
-reg.zam.2016 <- lm(n_2016 ~ ENoP_2016 + ethnic_heterogenity + popdensity + unemployed, data = DATEN_über_Sambia)
-reg.zam.2011 <- lm(n_2011 ~ ENoP_2011 + ethnic_heterogenity + popdensity + unemployed, data = DATEN_über_Sambia)
-reg.zam.2016
 
- reg_2016 <- summary(reg.zam.2016)
+# messing around to see if only violent provences have relationship - they don't
+Prov_of_interest <- filter(DATEN_Ã¼ber_Sambia, sub == c("CENTRAL") | sub == c("COPPERBELT") | sub == c("CENTRAL") | sub == c("SOUTHERN"))
+print(Prov_of_interest, n = 200)
+
+reg.zam.2016_prov <- lm(n_2016 ~ ENoP_2016 + ethnic_heterogenity + popdensity + unemployed, data = Prov_of_interest)
+reg.zam.2011_prov <- lm(n_2011 ~ ENoP_2011 + ethnic_heterogenity + popdensity + unemployed, data = Prov_of_interest)
+summary(reg.zam.2011_prov)
+
+
+reg.zam.2016 <- lm(n_2016 ~ ENoP_2016 + viol_2011 + ethnic_heterogenity + popdensity + unemployed, data = DATEN_Ã¼ber_Sambia_ohne_etwas)
+reg.zam.2011 <- lm(n_2011 ~ ENoP_2011 + ethnic_heterogenity + popdensity + unemployed, data = DATEN_Ã¼ber_Sambia_ohne_etwas)
+probit <- glm(viol_2016 ~ ENoP_2016 + viol_2011 + ethnic_heterogenity + popdensity + unemployed, data = DATEN_Ã¼ber_Sambia_ohne_etwas)
+probit_summary <- summary(probit)
+reg_2016 <- summary(reg.zam.2016)
+
 reg_2011 <- summary(reg.zam.2011)
 
+reg_2016
